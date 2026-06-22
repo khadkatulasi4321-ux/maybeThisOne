@@ -1,0 +1,118 @@
+# maybe-this-one
+
+A dumb little password auditing tool written in Zig.
+
+It takes a hash, grabs a giant list of possible passwords, and repeatedly says:
+
+> maybe this one
+
+until something works.
+
+Or it doesn't.
+
+Either way, at least it tried.
+
+## What it does
+
+* Reads a target hash
+* Loads a wordlist
+* Hashes every candidate
+* Compares them
+* Repeats the process very, very quickly
+* Uses multiple CPU cores because waiting is boring
+
+## Why?
+
+Because sometimes you have a password hash and a suspicious amount of free time.
+
+
+## Features
+
+* ⚡ Avrage Fast
+* 📦 Tiny executable
+* 🔧 NO dependencies
+
+## Supported algorithms
+
+* MD5
+* SHA-1
+* SHA-256
+* SHA-512
+* Blake-3
+* Blake-2
+
+More may be added later.
+
+## Build
+
+Requirements:
+
+* Zig 0.16+
+
+```bash
+git clone https://github.com/yourname/maybe-this-one
+
+cd maybe-this-one
+
+zig build -Doptimize=ReleaseFast
+```
+
+## Usage
+
+```bash
+maybe-this-one -a sha256 -h <hash> -w passwords.txt
+```
+
+Example output:
+
+```text
+[1/1000000]
+
+password
+nope
+
+123456
+nope
+
+qwerty
+nope
+
+password123
+🎉 maybe this one
+
+FOUND: password123
+```
+
+## Philosophy
+
+Computers are really good at trying lots of things.
+
+This program simply weaponizes optimism.
+
+## Legal
+
+Only use this against systems, files, or hashes you own or have permission to audit.
+
+Do not be weird.
+
+Be weird on yer own risk .
+
+## License
+
+MIT.
+
+Take it.
+
+Break it.
+
+Improve it.
+
+Steal the ideas.
+
+Just keep the license around.
+
+---
+
+Written in Zig because life's too short for hidden allocations.
+
+## and yea ai allowed only in README only cuz i suck on language
