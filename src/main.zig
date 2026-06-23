@@ -10,7 +10,7 @@ pub fn main(init: std.process.Init) !void {
             "usage: {s} <sha256|blake3|sha512|sha1|md5> <hash> <wordlist> <bytesallocatedforwordlist>\n",
             .{args[0]},
         );
-        std.process.exit(1);
+        return;
     }
     const opt = args[1];
     const hash = args[2];
@@ -36,11 +36,11 @@ pub fn main(init: std.process.Init) !void {
                 "unknown algorithm: {s}\n",
                 .{opt},
             );
-            std.process.exit(1);
+            return;
         };
     if (hash.len != hashr.digestSize() * 2) {
         std.debug.print("invalid hash for algorithm {s}", .{opt});
-        std.process.exit(1);
+        return;
     }
     const gpa = init.gpa;
     const fileBuff = try gpa.alloc(u8, sizeOfFileBuff);
@@ -58,22 +58,34 @@ pub fn main(init: std.process.Init) !void {
     }
     gpa.free(fileBuff);
 
-    const hequal = std.mem.eql;
+    var expected: [64]u8 = undefined;
+
+    _ = try std.fmt.hexToBytes(
+        expected[0..hashr.digestSize()],
+        hash,
+    );
+
+    defer guesses.deinit(gpa);
 
     for (guesses.items) |guess| {
         var digest: [64]u8 = undefined;
-        const digestx = try hashr.hashDigest(
+
+        _ = try hashr.hashDigest(
             guess,
             digest[0..],
         );
-        const s = hashr.digestSize();
 
-        if (hequal([]u8, digest[0..s], hash)) {
-            std.debug.print("hash found its hash of {x:0>2}", .{digestx});
-            std.process.exit(0);
+        if (std.mem.eql(
+            u8,
+            digest[0..hashr.digestSize()],
+            expected[0..hashr.digestSize()],
+        )) {
+            std.debug.print(
+                "hash found: {s}\n",
+                .{guess},
+            );
+            return;
         }
     }
     std.debug.print("didnt find it ", .{});
-
-    guesses.deinit(gpa);
 }
