@@ -39,7 +39,6 @@ Because sometimes you have a password hash and a suspicious amount of free time.
 * SHA-256
 * SHA-512
 * Blake-3
-* Blake-2
 
 More may be added later.
 
