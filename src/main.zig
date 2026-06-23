@@ -113,7 +113,7 @@ pub fn main(init: std.process.Init) !void {
     );
 
     defer guesses.deinit(gpa);
-
+    //TODO: gottaaaaa add multi threading for below process 
     for (guesses.items) |guess| {
         var digest: [64]u8 = undefined;
 
