@@ -2,19 +2,63 @@ const std = @import("std");
 const hsr = @import("maybeThislib");
 
 pub fn main(init: std.process.Init) !void {
+    const version = "0.0.0";
     const arena = init.arena;
     const alloc = arena.allocator();
+    const equal = std.ascii.eqlIgnoreCase;
     const args = try init.minimal.args.toSlice(alloc);
+    const clr = hsr.Color;
+
+    if (args.len == 2) {
+        if (equal(args[1], "help") or equal(args[1], "--help") or equal(args[1], "-h")) {
+            std.debug.print(
+                \\
+                \\
+                \\ {s}MaybeThisOne [{s}] by samsit-phew{s}
+                \\
+                \\  {s}usage: {s}
+                \\      {s} <sha1|sha256|sha512|blake3|md5> <hash> <wordlist> <bytesallocatedforwordlist>
+                \\
+                \\  {s}example : {s}
+                \\      {s} sha256 1c8bfe8f801d79745c4631d09fff36c82aa37fc4cce4fc946683d7b336b63032 myshittywordlist.txt 1024 
+                \\
+                \\  {s}note{s}:
+                \\      if its a large wordlist increase bytesallocatedtoo 
+                \\      max for now is 8192 or something like that 
+                \\
+                \\
+            , .{
+                clr.bold,
+                version,
+                clr.reset,
+                clr.bold,
+                clr.reset,
+                args[0],
+                clr.bold,
+                clr.reset,
+                args[0],
+                clr.red,
+                clr.reset,
+            });
+        } else if (equal(args[1], "version") or equal(args[1], "-v") or equal(args[1], "--version")) {
+            std.debug.print(
+                "{s}version{s}: {s}{s}{s}",
+                .{ clr.red, clr.red, clr.bold, version, clr.reset },
+            );
+        }
+        return;
+    }
+
     if (args.len != 5) {
         std.debug.print(
-            "usage: {s} <sha256|blake3|sha512|sha1|md5> <hash> <wordlist> <bytesallocatedforwordlist>\n",
-            .{args[0]},
+            "{s}usage:{s} {s} <sha256|blake3|sha512|sha1|md5> <hash> <wordlist> <bytesallocatedforwordlist>\n",
+            .{ clr.red, clr.reset, args[0] },
         );
         return;
     }
+
     const opt = args[1];
     const hash = args[2];
-    const equal = std.ascii.eqlIgnoreCase;
     var sizeOfFileBuff = try std.fmt.parseInt(u16, args[4], 10);
     if (sizeOfFileBuff > 8192) {
         sizeOfFileBuff = 8192;
@@ -33,13 +77,16 @@ pub fn main(init: std.process.Init) !void {
             .sha1
         else {
             std.debug.print(
-                "unknown algorithm: {s}\n",
-                .{opt},
+                "{s}error{s}: unknown algorithm: {s}\n",
+                .{ clr.red, clr.reset, opt },
             );
             return;
         };
     if (hash.len != hashr.digestSize() * 2) {
-        std.debug.print("invalid hash for algorithm {s}", .{opt});
+        std.debug.print(
+            "{s}error{s}: invalid hash for algorithm {s}",
+            .{ clr.red, clr.reset, opt },
+        );
         return;
     }
     const gpa = init.gpa;
@@ -81,11 +128,11 @@ pub fn main(init: std.process.Init) !void {
             expected[0..hashr.digestSize()],
         )) {
             std.debug.print(
-                "hash found: {s}\n",
-                .{guess},
+                "yeaaaa boiiii hash found: {s} {s} {s}\n",
+                .{ clr.green, guess, clr.reset },
             );
             return;
         }
     }
-    std.debug.print("didnt find it ", .{});
+    std.debug.print("{s}naw man didnt find it {s}", .{ clr.yellow, clr.reset });
 }

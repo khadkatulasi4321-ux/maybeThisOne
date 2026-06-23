@@ -101,3 +101,17 @@ pub const Hash = enum {
         return out[0..size];
     }
 };
+
+pub const Color = struct {
+    // yea i googled this shit wut ya goona do ?? huh?
+    // yea i spent hours searching in ziggit about Color crap
+
+    pub const reset = "\x1b[0m";
+
+    pub const red = "\x1b[31m";
+    pub const green = "\x1b[32m";
+    pub const yellow = "\x1b[33m";
+    pub const cyan = "\x1b[36m";
+
+    pub const bold = "\x1b[1m";
+};
